@@ -22,9 +22,12 @@ jobs:
       run: |
         SHORT_SHA="${GITHUB_SHA::12}"
         TAG="build-${SHORT_SHA}"
-        APK="build/outputs/apk/debug/DeskClock-debug.apk"
+        SOURCE_APK="build/outputs/apk/debug/DeskClock-debug.apk"
+        RELEASE_APK="LinageOS-Clock_${SHORT_SHA}.apk"
 
-        gh release create "$TAG" "$APK" \
+        mv "$SOURCE_APK" "$RELEASE_APK"
+
+        gh release create "$TAG" "$RELEASE_APK" \
           --target "$GITHUB_SHA" \
           --title "Build ${SHORT_SHA}" \
           --generate-notes
