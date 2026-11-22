@@ -5,6 +5,8 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout repo
@@ -12,3 +14,17 @@ jobs:
 
     - name: Build
       uses: ./.github/workflows/build
+
+    - name: Create tag and release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/lineage-24.0'
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        SHORT_SHA="${GITHUB_SHA::12}"
+        TAG="build-${SHORT_SHA}"
+        APK="build/outputs/apk/debug/DeskClock-debug.apk"
+
+        gh release create "$TAG" "$APK" \
+          --target "$GITHUB_SHA" \
+          --title "Build ${SHORT_SHA}" \
+          --generate-notes
